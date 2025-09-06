@@ -1,0 +1,10 @@
+{
+  "elasticsearch_url": "http://localhost:9200",
+  "document_directories": [],
+  "supported_file_types": [".pdf", ".docx", ".txt", ".md"],
+  "search_settings": {},
+  "ui_settings": {},
+  "performance_settings": {},
+  "docker_services": {}
+}
+
