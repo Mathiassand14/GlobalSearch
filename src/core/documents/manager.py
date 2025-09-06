@@ -42,3 +42,32 @@ class DocumentManager:
     def registered_suffixes(self) -> List[str]:
         return sorted(self._suffix_map.keys())
 
+    # -------- Auto-discovery --------
+    def auto_register_builtin(self) -> None:
+        """Register built-in processors shipped in src/core/documents/.
+
+        Import lazily to avoid hard deps at import time.
+        """
+        # PDF
+        try:
+            from src.core.documents.pdf import PDFProcessor  # noqa: WPS433
+
+            self.register(PDFProcessor())
+        except Exception:
+            pass
+
+        # Text
+        try:
+            from src.core.documents.text import TextProcessor  # noqa: WPS433
+
+            self.register(TextProcessor())
+        except Exception:
+            pass
+
+        # DOCX
+        try:
+            from src.core.documents.docx import DocxProcessor  # noqa: WPS433
+
+            self.register(DocxProcessor())
+        except Exception:
+            pass
