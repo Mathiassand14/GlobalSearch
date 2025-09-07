@@ -4,6 +4,7 @@ import json
 import threading
 import time
 from dataclasses import asdict
+import os
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
@@ -52,6 +53,11 @@ class ConfigurationManager:
         data = self._to_dict(config)
         with self._config_path.open("w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+        # Force mtime update to ensure watcher detects rapid changes
+        now = time.time()
+        os.utime(self._config_path, (now, now))
 
     # -------- Validation / Conversion --------
     def _validate_and_build(self, data: Dict[str, Any]) -> ApplicationConfig:
