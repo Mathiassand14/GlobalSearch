@@ -134,7 +134,7 @@
   - _Requirements: 3.2, 3.3, 3.5_
 
 - [ ] 10. Create search window GUI components
-- [ ] 10.1 Implement main search window layout and controls
+- [x] 10.1 Implement main search window layout and controls
   - Create SearchWindow class with PyQt6 widgets (search bar, filters, results list, topic tree)
   - Implement debounced search input with 300ms delay using QTimer (exact requirement)
   - Add advanced filter controls (date range, file type, relevance threshold, boolean operators)
