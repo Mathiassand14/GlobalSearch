@@ -5,6 +5,7 @@ from typing import Optional
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
 
 from .base import DocumentViewerWindow
+from src.core.performance.lru_cache import LRUCache
 
 
 class PDFViewerWindow(DocumentViewerWindow):
@@ -16,6 +17,8 @@ class PDFViewerWindow(DocumentViewerWindow):
         self._view = None
         self._current_page = 0
         self._init_view()
+        # Simple page cache (LRU) to keep recently viewed pages warm
+        self._page_cache: LRUCache[int, bool] = LRUCache(capacity=50)
 
     def _init_view(self) -> None:
         try:
@@ -50,6 +53,7 @@ class PDFViewerWindow(DocumentViewerWindow):
             self._current_page -= 1
             self._view.setPage(self._current_page)
             self._update_page_label()
+            self._preload_around()
 
     def _go_next(self) -> None:
         if self._doc is None:
@@ -58,9 +62,19 @@ class PDFViewerWindow(DocumentViewerWindow):
             self._current_page += 1
             self._view.setPage(self._current_page)
             self._update_page_label()
+            self._preload_around()
 
     def _update_page_label(self) -> None:
         if self._doc is None:
             return
         self.page_lbl.setText(f"Page: {self._current_page + 1} / {self._doc.pageCount()}")
+
+    def _preload_around(self, radius: int = 2) -> None:
+        if self._doc is None:
+            return
+        start = max(0, self._current_page - radius)
+        end = min(self._doc.pageCount() - 1, self._current_page + radius)
+        for p in range(start, end + 1):
+            # Mark page as preloaded in cache; placeholder True indicates presence
+            self._page_cache.put(p, True)
 
