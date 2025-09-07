@@ -8,13 +8,14 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from src.core.models.search import SearchResult
 
 
-SearchFn = Callable[[str, int], List[SearchResult]]
+SearchFn = Callable[..., List[SearchResult]]
 
 
 @dataclass(slots=True)
 class SearchTask:
     query: str
     limit: int
+    topic_filter: str | None = None
 
 
 class SearchWorker(QObject):
@@ -29,8 +30,10 @@ class SearchWorker(QObject):
 
     def run(self, task: SearchTask) -> None:
         try:
-            out = self._search_fn(task.query, task.limit)
+            try:
+                out = self._search_fn(task.query, task.limit, task.topic_filter)
+            except TypeError:
+                out = self._search_fn(task.query, task.limit)
             self.results_ready.emit(out)
         except Exception as exc:  # pragma: no cover - defensive
             self.error.emit(str(exc))
-
