@@ -200,7 +200,7 @@
   - Create navigation between multiple search results in same document
   - _Requirements: 3.2, 3.3, 3.4_
 
-- [ ] 12.3 Implement text-based document viewers for multi-format support
+- [x] 12.3 Implement text-based document viewers for multi-format support
   - Create TextViewer class for .txt and .md files using QTextEdit
   - Add syntax highlighting for markdown files
   - Implement search term highlighting for text-based documents
