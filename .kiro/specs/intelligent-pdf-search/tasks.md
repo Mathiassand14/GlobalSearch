@@ -186,14 +186,14 @@
   - _Requirements: 6.2_
 
 - [ ] 12. Create document viewer window GUI components
-- [ ] 12.1 Implement extensible document viewer architecture
+- [x] 12.1 Implement extensible document viewer architecture
   - Create DocumentViewerWindow base class with common viewer functionality
   - Define DocumentViewer interface for file-type-specific rendering
   - Implement viewer factory pattern for selecting appropriate viewer
   - Add common navigation controls and zoom functionality
   - _Requirements: 3.2, 3.3, 3.4_
 
-- [ ] 12.2 Implement PDF viewer with Qt PDF rendering
+- [x] 12.2 Implement PDF viewer with Qt PDF rendering
   - Create PDFViewer class implementing DocumentViewer interface
   - Integrate QPdfView widget for PDF rendering
   - Add search term highlighting overlay using custom QPainter
