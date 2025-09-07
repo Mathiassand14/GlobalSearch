@@ -156,7 +156,7 @@
   - _Requirements: 2.5, 4.5, 3.2, 5.1_
 
 - [ ] 11. Create settings window GUI components
-- [ ] 11.1 Implement settings window layout and AI model configuration
+- [x] 11.1 Implement settings window layout and AI model configuration
   - Create SettingsWindow class with tabbed interface (AI Models, Search, Performance, Services, GPU Settings)
   - Add model selection dropdown with sentence-transformers model options
   - Implement GPU/CPU device selection and memory allocation controls
