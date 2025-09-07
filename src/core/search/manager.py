@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from typing import Any, Callable, Iterable, List, Optional, Sequence, Tuple
 
@@ -32,19 +33,28 @@ class SearchManager:
         es_client: Optional[Any] = None,
         candidate_provider: Optional[CandidateProvider] = None,
         weights: Optional[SearchRankWeights] = None,
+        cache_ttl_seconds: float = 0.0,
     ) -> None:
         self._cfg = config or ApplicationConfig()
         self._es = es_client
         self._provider = candidate_provider or (lambda q, n: ())
         self._weights = weights or SearchRankWeights()
         self._model: Optional[Any] = None
+        self._ttl = max(0.0, float(cache_ttl_seconds))
+        self._cache: dict[tuple[str, int, Optional[str]], tuple[float, List[SearchResult]]] = {}
 
     # ---- Public API ----
-    def search(self, query: str, limit: int = 10) -> List[SearchResult]:
+    def search(self, query: str, limit: int = 10, topic_filter: Optional[str] = None) -> List[SearchResult]:
+        key = (query, int(limit), topic_filter)
+        now = time.time()
+        if self._ttl > 0:
+            hit = self._cache.get(key)
+            if hit and now - hit[0] <= self._ttl:
+                return hit[1]
         parts: List[SearchResult] = []
 
         # Exact via ES
-        parts.extend(self._search_exact(query, limit))
+        parts.extend(self._search_exact(query, limit, topic_filter=topic_filter))
 
         # Fuzzy
         if self._cfg.search_settings.enable_spelling_correction:
@@ -63,18 +73,37 @@ class SearchManager:
 
         # Sort by score desc and trim
         results = sorted(merged.values(), key=lambda r: r.relevance_score, reverse=True)
-        return results[:limit]
+        results = results[:limit]
+        if self._ttl > 0:
+            self._cache[key] = (now, results)
+        return results
+
+    def suggest(self, prefix: str, limit: int = 5) -> List[str]:
+        """Return simple auto-complete terms derived from provider texts."""
+        if not prefix:
+            return []
+        prefix_low = prefix.lower()
+        seen: dict[str, int] = {}
+        for _doc, text in self._provider(prefix, limit * 10):
+            for tok in text.split():
+                if tok.lower().startswith(prefix_low):
+                    seen[tok] = seen.get(tok, 0) + 1
+        # sort by frequency desc, then lexicographically
+        return [w for w, _ in sorted(seen.items(), key=lambda kv: (-kv[1], kv[0]))][:limit]
 
     # ---- Exact ----
-    def _search_exact(self, query: str, limit: int) -> List[SearchResult]:
+    def _search_exact(self, query: str, limit: int, topic_filter: Optional[str] = None) -> List[SearchResult]:
         es = self._get_es()
         if es is None:
             return []
         try:
+            q: dict[str, Any] = {"multi_match": {"query": query, "fields": ["title^2", "content"]}}
+            if topic_filter:
+                q = {"bool": {"must": [q], "filter": [{"term": {"metadata.topic_path.keyword": topic_filter}}]}}
             resp = es.search(  # type: ignore[attr-defined]
                 index="documents",
                 size=limit,
-                query={"multi_match": {"query": query, "fields": ["title^2", "content"]}},
+                query=q,
                 highlight={"fields": {"content": {}}},
             )
         except Exception:
@@ -188,4 +217,3 @@ class SearchManager:
             return self._model
         except Exception:
             return None
-
