@@ -125,7 +125,7 @@
   - Write unit tests for Cython extension functionality and parallel processing
   - _Requirements: 1.1, 2.1, 5.1_
 
-- [ ] 9. Implement event bus for inter-window communication
+- [x] 9. Implement event bus for inter-window communication
   - Create EventBus class using observer pattern for decoupled window communication
   - Define event types (SearchResultSelected, DocumentOpened, WindowClosed, IndexingProgress)
   - Implement subscribe/publish/unsubscribe methods with type safety
