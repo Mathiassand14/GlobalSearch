@@ -33,4 +33,4 @@ def test_app_environment_and_volumes():
     app_idx = text.find('\n  app:')
     segment = text[app_idx:app_idx + 800]
     assert 'ELASTICSEARCH_URL=' in segment
-    assert './:/app' in segment
+    assert ('./:/app' in segment) or ('./:/opt/project' in segment)

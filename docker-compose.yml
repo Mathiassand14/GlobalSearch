@@ -29,17 +29,17 @@ services:
       - UV_NO_PROGRESS=1
       - QT_LOGGING_RULES=qt.qpa.*=false
     volumes:
-      - ./:/app
+      - ./:/opt/project
     restart: unless-stopped
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 10g
-    working_dir: /app
+    working_dir: /opt/project
     stdin_open: true
     tty: true
-    command: ["/bin/sh", "-lc", "uv sync --no-dev || true; tail -f /dev/null"]
+    command: ["/bin/sh", "-lc", "uv venv || true; uv pip install -r requirements.txt || true; tail -f /dev/null"]
 
 volumes:
   esdata:
