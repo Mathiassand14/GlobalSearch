@@ -45,4 +45,4 @@ RUN uv sync --frozen --no-dev || uv sync --no-dev
 # Run the application via module entrypoint
 ENV QT_QPA_PLATFORM=offscreen
 ENTRYPOINT ["/bin/sh", "-lc"]
-CMD ["uv sync --no-dev || true; uv run python -m src.main"]
+CMD ["python -m pip install --no-cache-dir -r requirements.txt && python -m src.main"]
