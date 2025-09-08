@@ -21,6 +21,8 @@ from PyQt6.QtWidgets import (
 from src.core.events import EventBus, SearchResultSelected
 from src.core.models.search import SearchResult
 from src.gui.workers.search_worker import SearchTask, SearchWorker
+from src.gui.settings_window import SettingsWindow
+from src.core.config import ConfigurationManager
 
 
 SearchFn = Callable[[str, int], List[SearchResult]]
@@ -66,6 +68,8 @@ class SearchWindow(QWidget):
         self.search_btn.clicked.connect(self._trigger_search_immediate)
         self.loading_lbl = QLabel("")
         self.loading_lbl.setStyleSheet("color: gray;")
+        self.settings_btn = QPushButton("Settings", self)
+        self.settings_btn.clicked.connect(self._open_settings)
 
         # Row 1: filters
         filters = QHBoxLayout()
@@ -96,7 +100,8 @@ class SearchWindow(QWidget):
         grid.addWidget(QLabel("Query:"), 0, 0)
         grid.addWidget(self.query_edit, 0, 1)
         grid.addWidget(self.search_btn, 0, 2)
-        grid.addWidget(self.loading_lbl, 0, 3)
+        grid.addWidget(self.settings_btn, 0, 3)
+        grid.addWidget(self.loading_lbl, 0, 4)
         grid.addLayout(filters, 1, 0, 1, 3)
         grid.addWidget(QLabel("Sort:"), 1, 3)
         grid.addWidget(self.sort_combo, 1, 4)
@@ -109,6 +114,8 @@ class SearchWindow(QWidget):
         self._timer.setSingleShot(True)
         self.query_edit.textEdited.connect(lambda _t: self._timer.start())
         self._timer.timeout.connect(self._trigger_search)
+        # Lazy windows
+        self._settings_win: Optional[SettingsWindow] = None
 
     # ---- Search trigger ----
     def _trigger_search_immediate(self) -> None:
@@ -174,3 +181,14 @@ class SearchWindow(QWidget):
         # Re-run search if a query is present
         if self.query_edit.text().strip():
             self._trigger_search()
+
+    # ---- Settings ----
+    def _open_settings(self) -> None:
+        if self._settings_win is None:
+            self._settings_win = SettingsWindow(ConfigurationManager())
+        self._settings_win.show()
+        try:
+            self._settings_win.raise_()
+            self._settings_win.activateWindow()
+        except Exception:
+            pass

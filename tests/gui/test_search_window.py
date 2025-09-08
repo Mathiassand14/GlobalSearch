@@ -9,6 +9,7 @@ from PyQt6.QtCore import Qt
 
 from src.core.models.search import MatchType, SearchResult
 from src.gui import SearchWindow
+from src.gui.settings_window import SettingsWindow
 
 
 def _fake_search(query: str, limit: int, topic_filter: str | None = None) -> list[SearchResult]:
@@ -36,6 +37,22 @@ def test_debounced_search_populates_results(qtbot):
     assert win.results.count() == 1
     item = win.results.item(0)
     assert "hit: test" in item.text()
+
+
+def test_settings_button_opens_window(qtbot, monkeypatch):
+    win = SearchWindow(search_fn=_fake_search, debounce_ms=10)
+    qtbot.addWidget(win)
+    win.show()
+    # Patch show to observe it gets called
+    opened = {"count": 0}
+
+    def _spy_show(self):  # noqa: ANN001
+        opened["count"] += 1
+        QWidget.show(self)
+
+    monkeypatch.setattr(SettingsWindow, "show", _spy_show, raising=True)
+    qtbot.mouseClick(win.settings_btn, Qt.MouseButton.LeftButton)
+    assert opened["count"] >= 1
 
 
 def test_sorting_changes_order(qtbot):
