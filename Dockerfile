@@ -6,6 +6,7 @@ FROM python:3.11-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_LINK_MODE=copy \
     PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app
@@ -18,6 +19,7 @@ RUN apt-get update \
        libxkbcommon-x11-0 libxkbcommon0 \
         libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
         libxcb-render-util0 libxcb-shape0 libxcb-xfixes0 libxcb-xinerama0 \
+        libxcb-cursor0 libxcb-xtest0 \
         libfontconfig1 libfreetype6 libxrender1 libxext6 libx11-6 \
     && rm -rf /var/lib/apt/lists/* \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
