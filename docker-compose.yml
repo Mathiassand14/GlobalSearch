@@ -37,7 +37,9 @@ services:
           cpus: '2.0'
           memory: 10g
     working_dir: /app
-    command: ["/bin/sh", "-lc", "uv pip install -r requirements.txt && uv run python -m src.main"]
+    stdin_open: true
+    tty: true
+    command: ["/bin/sh", "-lc", "uv sync --no-dev || true; tail -f /dev/null"]
 
 volumes:
   esdata:
