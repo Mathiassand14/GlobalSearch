@@ -174,7 +174,7 @@
   - Write GUI unit tests for settings persistence and validation
   - _Requirements: 1.2, 4.1, 6.5_
 
-- [ ] 11.3 Implement file and directory management interface
+- [x] 11.3 Implement file and directory management interface
   - Add "Add Files" button that launches native file browser (Dolphin on Linux, Explorer on Windows, Finder on macOS)
   - Implement directory browser for document collection management using QFileDialog
   - Add file list display with remove/edit capabilities for configured document directories
