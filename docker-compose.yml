@@ -37,7 +37,7 @@ services:
           cpus: '2.0'
           memory: 10g
     working_dir: /app
-    command: ["/bin/sh", "-lc", "uv run python -m src.main"]
+    command: ["/bin/sh", "-lc", "uv pip install -r requirements.txt && uv run python -m src.main"]
 
 volumes:
   esdata:
