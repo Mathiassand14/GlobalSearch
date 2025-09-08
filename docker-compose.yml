@@ -25,6 +25,9 @@ services:
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - QT_QPA_PLATFORM=offscreen
+      - UV_LINK_MODE=copy
+      - UV_NO_PROGRESS=1
+      - QT_LOGGING_RULES=qt.qpa.*=false
     volumes:
       - ./:/app
     restart: unless-stopped
@@ -34,7 +37,7 @@ services:
           cpus: '2.0'
           memory: 10g
     working_dir: /app
-    command: ["/bin/sh", "-lc", "uv sync --no-dev || true; uv run python -m src.main"]
+    command: ["/bin/sh", "-lc", "uv run python -m src.main"]
 
 volumes:
   esdata:
