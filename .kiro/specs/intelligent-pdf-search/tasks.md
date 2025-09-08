@@ -60,6 +60,19 @@
   - Write integration tests for service management
   - _Requirements: 6.1, 6.3, 6.4_
 
+- [ ] 5.1 Optimize docker-compose.yml for PDF search application requirements
+  - Remove unnecessary services (PostgreSQL, Redis) that are not required for PDF search functionality
+  - Keep only Elasticsearch service (required for search indexing and semantic search)
+  - Add application service configuration with proper build context and multi-stage target specification
+  - Configure service dependencies with health checks (app depends on healthy Elasticsearch)
+  - Add volume mounts for documents, config, and logs directories using pathlib-compatible paths
+  - Set appropriate environment variables for Elasticsearch connection and document storage paths
+  - Add resource limits and restart policies for production deployment stability
+  - Update service networking and port configurations optimized for desktop application use case
+  - Create .dockerignore file to optimize build context and reduce image size
+  - Write docker-compose validation tests to ensure services start correctly and communicate properly
+  - _Requirements: 6.1, 6.3, 6.4_
+
 - [x] 6. Implement Elasticsearch integration and indexing
   - Create IndexManager class with Elasticsearch client configuration
   - Implement document indexing with text content and metadata storage
@@ -226,7 +239,7 @@
   - Write tests for concurrent operations and thread safety with multiple file formats and GPU operations
   - _Requirements: 2.3, 5.2, 5.4_
 
-- [ ] 14. Add comprehensive error handling and user feedback
+- [x] 14. Add comprehensive error handling and user feedback
   - Implement error dialog components with actionable troubleshooting steps
   - Add status bar indicators for service connectivity, indexing progress, and re-encoding status
   - Create logging configuration with structured format and file rotation
