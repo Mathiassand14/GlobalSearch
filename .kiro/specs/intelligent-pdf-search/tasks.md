@@ -249,7 +249,7 @@
   - Write error scenario tests for all major failure modes
   - _Requirements: 2.4, 6.4, 5.4_
 
-- [ ] 15. Create application entry point and main window coordination
+- [x] 15. Create application entry point and main window coordination
   - Implement main.py with application initialization and automatic service startup using pathlib
   - Create main application class that manages search, viewer, and settings windows
   - Add application configuration loading and validation on startup with pathlib path resolution
