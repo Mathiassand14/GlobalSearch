@@ -27,9 +27,7 @@ services:
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
     volumes:
-      - ./documents:/app/documents
-      - ./config:/app/config
-      - ./logs:/app/logs
+      - ./:/app
     restart: unless-stopped
     deploy:
       resources:

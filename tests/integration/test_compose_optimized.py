@@ -33,6 +33,4 @@ def test_app_environment_and_volumes():
     app_idx = text.find('\n  app:')
     segment = text[app_idx:app_idx + 800]
     assert 'ELASTICSEARCH_URL=' in segment
-    assert './config:/app/config' in segment
-    assert './documents:/app/documents' in segment
-    assert './logs:/app/logs' in segment
+    assert './:/app' in segment
