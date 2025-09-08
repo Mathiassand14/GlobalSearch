@@ -14,7 +14,7 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        curl ca-certificates \
-       libgl1 libopengl0 libegl1 libglib2.0-0 \
+       libgl1 libopengl0 libegl1 libglib2.0-0 libdbus-1-3 \
        libxkbcommon-x11-0 libxkbcommon0 \
         libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
         libxcb-render-util0 libxcb-shape0 libxcb-xfixes0 libxcb-xinerama0 \
