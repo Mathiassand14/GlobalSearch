@@ -32,9 +32,9 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 2g
-    entrypoint: ["/bin/sh", "-lc"]
-    command: "uv sync --no-dev || true; uv run python -m src.main"
+          memory: 10g
+    working_dir: /app
+    command: ["/bin/sh", "-lc", "uv sync --no-dev || true; uv run python -m src.main"]
 
 volumes:
   esdata:
