@@ -30,9 +30,6 @@ COPY pyproject.toml requirements*.txt uv.lock /app/
 # Sync dependencies (dev included). Try frozen first for reproducibility.
 RUN uv sync --frozen || uv sync
 
-# Copy full project
-COPY . /app
-
 # Default command runs tests
 ENTRYPOINT ["uv", "run"]
 CMD ["pytest", "-q"]
@@ -44,9 +41,6 @@ FROM base AS runtime
 COPY pyproject.toml requirements*.txt uv.lock /app/
 # Sync runtime dependencies only
 RUN uv sync --frozen --no-dev || uv sync --no-dev
-
-# Copy full project
-COPY . /app
 
 # Run the application via module entrypoint
 ENV QT_QPA_PLATFORM=offscreen
