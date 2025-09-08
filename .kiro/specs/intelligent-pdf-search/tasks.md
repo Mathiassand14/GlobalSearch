@@ -1,12 +1,14 @@
 # Implementation Plan
 
-- [x] 1. Set up project foundation and dependencies
-  - Create project directory structure following MVC pattern using pathlib (src/core/, src/gui/, config/, tests/, src/core/performance/)
-  - Create requirements.txt with all mandatory dependencies (PyQt6, pdfplumber, elasticsearch, sentence-transformers, rapidfuzz, numba, cython, joblib, torch)
-  - Add GPU acceleration dependencies (torch with CUDA support, sentence-transformers GPU backend)
-  - Set up Docker Compose configuration for Elasticsearch service
-  - Create pyproject.toml for UV package management and Cython compilation
-  - Create basic .gitignore for Python projects
+- [ ] 1. Set up project foundation and dependencies for Tauri + FastAPI architecture
+  - Create project directory structure following clean architecture (src/core/, src/api/, src-tauri/, src/, config/, tests/)
+  - Create backend requirements with FastAPI dependencies (fastapi, uvicorn, pdfplumber, elasticsearch, sentence-transformers, rapidfuzz, numba)
+  - Set up Tauri project structure with React/TypeScript frontend
+  - Set up Docker Compose configuration for FastAPI backend and Elasticsearch services
+  - Create pyproject.toml for UV package management for backend
+  - Create package.json with Tauri dependencies for native desktop application
+  - Create Cargo.toml for Rust backend dependencies
+  - Create basic .gitignore for Python, JavaScript, and Rust projects
   - _Requirements: 6.1, 6.3, 6.5_
 
 - [x] 2. Implement core data models and exceptions
@@ -60,7 +62,7 @@
   - Write integration tests for service management
   - _Requirements: 6.1, 6.3, 6.4_
 
-- [ ] 5.1 Optimize docker-compose.yml for PDF search application requirements
+- [x] 5.1 Optimize docker-compose.yml for PDF search application requirements
   - Remove unnecessary services (PostgreSQL, Redis) that are not required for PDF search functionality
   - Keep only Elasticsearch service (required for search indexing and semantic search)
   - Add application service configuration with proper build context and multi-stage target specification
@@ -162,7 +164,7 @@
   - Write performance benchmarks comparing GPU vs CPU vs standard implementations
   - _Requirements: 5.1, 5.3_
 
-- [ ] 8.2 Create Cython extensions for text processing with parallel support
+- [x] 8.2 Create Cython extensions for text processing with parallel support
   - Implement text_processing.pyx with fast tokenization functions
   - Add optimized fuzzy matching loops for large datasets with joblib parallel processing
   - Create high-performance document parsing routines with multi-threading support
@@ -179,115 +181,171 @@
   - Write unit tests for event bus functionality
   - _Requirements: 3.2, 3.3, 3.5_
 
-- [x] 10. Create search window GUI components
-- [x] 10.1 Implement main search window layout and controls
-  - Create SearchWindow class with PyQt6 widgets (search bar, filters, results list, topic tree)
-  - Implement debounced search input with 300ms delay using QTimer (exact requirement)
-  - Add advanced filter controls (date range, file type, relevance threshold, boolean operators)
-  - Create results list widget with pagination and lazy loading
-  - Add hierarchical topic tree browser widget for navigation
-  - Add settings button to access configuration panel
-  - Use QThread for all I/O operations to prevent UI blocking (mandatory)
-  - _Requirements: 3.1, 4.2, 4.3, 4.5_
+- [x] 10. Create FastAPI backend endpoints
+- [x] 10.1 Implement main FastAPI application and middleware
+  - Create FastAPI application with automatic OpenAPI documentation
+  - Add CORS middleware for frontend communication
+  - Implement file upload middleware for multipart form data handling
+  - Add error handling middleware with standardized error responses
+  - Create request logging and performance monitoring middleware
+  - Add health check endpoint for service monitoring
+  - _Requirements: 3.1, 6.1, 6.3_
 
-- [x] 10.2 Implement search result display and interaction
-  - Create custom QListWidget items for search results with relevance scores
-  - Add result sorting options (relevance, date, document name)
-  - Implement result selection handling and document viewer communication via EventBus
-  - Add loading indicators and progress feedback for long operations
-  - Implement topic tree navigation and filtering integration
-  - Add drag-and-drop support for files onto search window with automatic copying to document folder
-  - Ensure sub-2-second response time with loading indicators
-  - Write GUI unit tests using pytest-qt
-  - _Requirements: 2.5, 4.5, 3.2, 5.1_
+- [ ] 10.2 Implement search API endpoints
+  - Create GET /api/search endpoint with query parameters for basic search
+  - Add GET /api/search/suggestions endpoint for auto-complete functionality
+  - Implement GET /api/search/topics endpoint for hierarchical topic tree
+  - Create POST /api/search/advanced endpoint for complex search with JSON body
+  - Add proper HTTP status codes and error handling for all endpoints
+  - Implement pagination and sorting in search responses
+  - Write API unit tests using FastAPI TestClient
+  - _Requirements: 1.1, 1.3, 4.2, 4.5_
 
-- [x] 11. Create settings window GUI components
-- [x] 11.1 Implement settings window layout and AI model configuration
-  - Create SettingsWindow class with tabbed interface (AI Models, Search, Performance, Services, GPU Settings)
-  - Add model selection dropdown with sentence-transformers model options
-  - Implement GPU/CPU device selection and memory allocation controls
-  - Implement custom model path input and validation interface using pathlib path browser
-  - Create model download and validation functionality with GPU support detection using pathlib for model storage
-  - Add re-encoding trigger interface for existing documents with new model and GPU acceleration
-  - _Requirements: 6.2, 6.5_
+- [ ] 11. Create document management API endpoints
+- [ ] 11.1 Implement document upload and management endpoints
+  - Create POST /api/documents/upload endpoint with multipart form data support
+  - Add progress tracking for file uploads using WebSocket connections
+  - Implement GET /api/documents endpoint with pagination and filtering
+  - Create GET /api/documents/{id} endpoint for document retrieval
+  - Add DELETE /api/documents/{id} endpoint with index cleanup
+  - Implement file validation and error handling for unsupported formats
+  - Write API tests for document upload and management operations
+  - _Requirements: 7.1, 7.2, 7.6_
 
-- [x] 11.2 Implement search behavior and topic hierarchy settings
-  - Add toggle controls for AI semantic search enable/disable
-  - Implement fallback to pre-encoded files only mode setting
-  - Create fuzzy search sensitivity and threshold controls (80% accuracy target)
-  - Add topic hierarchy generation and management controls
-  - Implement topic tree depth and refresh settings
-  - Write GUI unit tests for settings persistence and validation
-  - _Requirements: 1.2, 4.1, 6.5_
+- [ ] 11.2 Implement configuration API endpoints
+  - Create GET /api/config endpoint for application configuration retrieval
+  - Add PUT /api/config endpoint for configuration updates with validation
+  - Implement GET /api/config/models endpoint for available AI models
+  - Create POST /api/config/models/switch endpoint for model switching
+  - Add configuration persistence and validation on the backend
+  - Write API tests for configuration management
+  - _Requirements: 6.5, 6.7_
 
-- [x] 11.3 Implement file and directory management interface
-  - Add "Add Files" button that launches native file browser (Dolphin on Linux, Explorer on Windows, Finder on macOS)
-  - Implement directory browser for document collection management using QFileDialog
-  - Add file list display with remove/edit capabilities for configured document directories
-  - Create cross-platform file browser integration using pathlib and QFileDialog
-  - Add drag-and-drop support for files and directories with automatic copying to designated document folder
-  - Implement file copying mechanism using pathlib when files are dragged onto the application
-  - Create configurable document storage directory with automatic organization
-  - Write unit tests for file browser integration, drag-and-drop, and file copying functionality
-  - _Requirements: 6.2_
+- [ ] 11.3 Implement file streaming and content delivery
+  - Create GET /api/documents/{id}/content endpoint for document content streaming
+  - Add GET /api/documents/{id}/pages/{page} endpoint for page-specific content
+  - Implement efficient file serving with proper HTTP headers and caching
+  - Add support for range requests for large file streaming
+  - Create thumbnail generation endpoint for document previews
+  - Write performance tests for file streaming operations
+  - _Requirements: 3.2, 3.4, 5.2_
 
-- [x] 12. Create document viewer window GUI components
-- [x] 12.1 Implement extensible document viewer architecture
-  - Create DocumentViewerWindow base class with common viewer functionality
-  - Define DocumentViewer interface for file-type-specific rendering
-  - Implement viewer factory pattern for selecting appropriate viewer
-  - Add common navigation controls and zoom functionality
-  - _Requirements: 3.2, 3.3, 3.4_
+- [ ] 12. Create Tauri native desktop application
+- [ ] 12.1 Set up Tauri project with multi-window architecture and service management
+  - Initialize Tauri project with React/TypeScript configuration
+  - Set up build system with Vite for development and production
+  - Configure ESLint and Prettier for code quality and formatting
+  - Add CSS framework (Tailwind) for responsive design
+  - Set up Tauri window management for multiple independent windows
+  - Configure Tauri permissions for file system access, dialogs, window management, and shell commands
+  - Implement Rust service manager for automatic Docker service startup and management
+  - Add Docker CLI integration for service lifecycle management from native application
+  - _Requirements: 8.3, 3.1, 6.1_
 
-- [x] 12.2 Implement PDF viewer with Qt PDF rendering
-  - Create PDFViewer class implementing DocumentViewer interface
-  - Integrate QPdfView widget for PDF rendering
-  - Add search term highlighting overlay using custom QPainter
-  - Create navigation between multiple search results in same document
-  - _Requirements: 3.2, 3.3, 3.4_
+- [ ] 12.2 Implement main search window
+  - Create main search window with native window controls
+  - Implement search input component with debounced API calls (300ms delay)
+  - Add advanced filters panel with date range, file type, and relevance controls
+  - Implement search results list with pagination and virtual scrolling
+  - Create auto-complete dropdown with API integration
+  - Add hierarchical topic tree navigation component
+  - Implement search result sorting and filtering options
+  - Add window state management (position, size, docking)
+  - _Requirements: 3.1, 1.1, 1.3, 4.2, 4.5_
 
-- [x] 12.3 Implement text-based document viewers for multi-format support
-  - Create TextViewer class for .txt and .md files using QTextEdit
-  - Add syntax highlighting for markdown files
-  - Implement search term highlighting for text-based documents
-  - Create simple navigation for text documents without page concept
-  - _Requirements: 3.2, 3.3, 3.4_
+- [ ] 12.3 Implement document viewer windows
+  - Create independent document viewer windows for each opened document
+  - Integrate native PDF rendering libraries for optimal performance
+  - Create text document viewer with syntax highlighting for markdown
+  - Add search term highlighting overlay for all document types
+  - Implement navigation controls (page navigation, zoom, search result jumping)
+  - Add lazy loading for large documents with native performance optimization
+  - Create document thumbnail and preview components
+  - Implement window independence (move, resize, minimize, close individually)
+  - _Requirements: 3.2, 3.3, 3.4, 3.7_
 
-- [x] 12.4 Implement document viewer performance optimizations
-  - Add lazy content loading with background QThread operations (mandatory)
-  - Implement LRU cache for rendered document content (max 50 documents)
-  - Add memory cleanup for large document objects with 1GB limit monitoring
-  - Create progress indicators for document loading operations
-  - Load active page ± 10 pages, unload distant pages during scrolling
-  - Write performance tests for large document handling
-  - _Requirements: 5.2, 5.3, 5.5_
+- [ ] 12.4 Implement native file management integration
+  - Integrate Tauri file system APIs for native file operations
+  - Create native file dialogs for file selection and management
+  - Implement native drag-and-drop support for files and folders
+  - Add file validation and progress tracking for file operations
+  - Create native file browser integration for document management
+  - Implement file watching for automatic index updates
+  - Write tests for native file operations and drag-and-drop functionality
+  - _Requirements: 7.1, 7.2, 7.6_
 
-- [x] 13. Implement background processing and threading with GPU acceleration
-  - Create QThread workers for multi-format document indexing operations (mandatory for UI responsiveness)
-  - Implement background directory watching with file system events for all supported file types
-  - Add GPU-accelerated progress reporting for long-running indexing and re-encoding operations
-  - Create thread-safe communication between workers and GUI with GPU memory management
-  - Implement background topic hierarchy generation with GPU acceleration and progress updates
-  - Use joblib for CPU-bound parallel processing when GPU is unavailable or busy
-  - Write tests for concurrent operations and thread safety with multiple file formats and GPU operations
-  - _Requirements: 2.3, 5.2, 5.4_
+- [ ] 13. Implement inter-window communication and state management
+- [ ] 13.1 Create Tauri event system for window communication
+  - Set up Tauri event system for communication between windows
+  - Implement event handlers for search result selection, document opening
+  - Create shared state management across multiple windows
+  - Add window lifecycle management (creation, destruction, focus)
+  - Implement window coordination for search and document viewing
+  - Create event-driven architecture for decoupled window communication
+  - Write tests for inter-window communication and state synchronization
+  - _Requirements: 3.2, 3.5, 3.7_
 
-- [x] 14. Add comprehensive error handling and user feedback
-  - Implement error dialog components with actionable troubleshooting steps
-  - Add status bar indicators for service connectivity, indexing progress, and re-encoding status
-  - Create logging configuration with structured format and file rotation
-  - Implement graceful degradation when services are unavailable or AI is disabled
-  - Add error handling for model loading failures and re-encoding errors
-  - Handle corrupted and password-protected PDF files gracefully (log and continue)
-  - Write error scenario tests for all major failure modes
+- [ ] 13.2 Implement service management and native OS integration
+  - Implement automatic backend service detection and startup on application launch
+  - Create service health monitoring with real-time status updates in UI
+  - Add service lifecycle management (start, stop, restart) from native application
+  - Set up native OS notifications for service status and processing completion
+  - Create native system tray integration for background service operation
+  - Implement native keyboard shortcuts and menu integration
+  - Add native window management (docking, snapping, workspace integration)
+  - Create native file association for supported document types
+  - Implement native clipboard integration for search and content
+  - Write tests for service management and native OS integration features
+  - _Requirements: 6.1, 6.3, 6.4, 7.7_
+
+- [ ] 14. Implement settings window and configuration interface
+- [ ] 14.1 Create native settings window
+  - Implement settings window with native controls and tabbed interface (AI Models, Search, Performance)
+  - Add AI model selection dropdown with download and switching functionality
+  - Create search behavior toggles (AI search enable/disable, fuzzy matching sensitivity)
+  - Implement performance settings (cache size, timeout configuration)
+  - Add service status monitoring display with health indicators
+  - Create configuration validation and persistence using Tauri storage APIs
+  - Implement window management for settings (modal or independent window)
+  - Write tests for settings window and API integration
+  - _Requirements: 6.5, 6.7, 1.2_
+
+- [ ] 14.2 Add comprehensive error handling and native user feedback
+  - Implement native error dialogs for graceful error handling
+  - Add native notifications for user feedback and status updates
+  - Create loading states and progress indicators for better user experience
+  - Implement retry mechanisms for failed API requests
+  - Add offline detection and graceful degradation with native indicators
+  - Create error logging and reporting functionality using Tauri logging
+  - Write error scenario tests for native components
   - _Requirements: 2.4, 6.4, 5.4_
 
-- [x] 15. Create application entry point and main window coordination
-  - Implement main.py with application initialization and automatic service startup using pathlib
-  - Create main application class that manages search, viewer, and settings windows
-  - Add application configuration loading and validation on startup with pathlib path resolution
-  - Implement clean shutdown procedures with resource cleanup and Cython extension cleanup
-  - Add command-line argument parsing for configuration overrides with pathlib path handling
-  - Verify all required services are running and display status on startup
+- [ ] 15. Create application packaging and deployment configuration
+- [ ] 15.1 Implement Docker Compose configuration for backend services
+  - Create docker-compose.yml with FastAPI backend and Elasticsearch services
+  - Configure service dependencies and health checks for proper startup order
+  - Add volume mounts for document storage, configuration, and logs
+  - Set up environment variables for service configuration
+  - Create production-ready Docker images with multi-stage builds
+  - Remove web frontend services (replaced by native Tauri application)
+  - _Requirements: 6.1, 6.3_
+
+- [ ] 15.2 Create Tauri application packaging and distribution
+  - Configure Tauri build system for cross-platform compilation (Windows, macOS, Linux)
+  - Set up application signing and notarization for distribution
+  - Create installer packages for each target platform
+  - Implement auto-updater functionality for seamless updates
+  - Add application metadata and icons for proper OS integration
+  - Create distribution scripts for automated builds and releases
   - Write end-to-end integration tests for complete application workflows
-  - _Requirements: 6.1, 6.3, 3.1, 3.5_
+  - _Requirements: 6.1, 6.3, 3.1_
+
+- [ ] 15.3 Remove unnecessary web application components
+  - Remove web-specific dependencies and configuration
+  - Clean up web-specific routing and navigation code
+  - Remove web browser compatibility code and polyfills
+  - Update project structure to focus on native desktop + API architecture
+  - Remove web-specific performance optimizations (virtual scrolling, lazy loading)
+  - Clean up web deployment and serving configuration
+  - Update documentation to reflect native desktop architecture
+  - _Requirements: 8.2, 8.3_

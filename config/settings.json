@@ -1,10 +1,47 @@
 {
   "elasticsearch_url": "http://localhost:9200",
-  "document_directories": [],
-  "supported_file_types": [".pdf", ".docx", ".txt", ".md"],
-  "search_settings": {},
+  "document_directories": [
+    "/opt/project/documents"
+  ],
+  "supported_file_types": [
+    ".pdf",
+    ".docx",
+    ".txt",
+    ".md"
+  ],
+  "search_settings": {
+    "fuzzy_edit_distance": 2,
+    "fuzzy_accuracy_target": 0.8,
+    "semantic_similarity_threshold": 0.7,
+    "search_timeout_seconds": 2,
+    "core_search_timeout_ms": 500,
+    "enable_auto_complete": true,
+    "enable_spelling_correction": true,
+    "enable_boolean_operators": true,
+    "enable_ai_search": true,
+    "fallback_to_preencoded_only": false,
+    "current_model_name": "all-MiniLM-L6-v2",
+    "custom_model_path": null,
+    "enable_topic_hierarchy": true,
+    "topic_hierarchy_depth": 3
+  },
   "ui_settings": {},
-  "performance_settings": {},
-  "docker_services": {}
+  "performance_settings": {
+    "max_cached_documents": 50,
+    "max_memory_usage_gb": 1.0,
+    "indexing_batch_size": 100,
+    "search_debounce_ms": 300,
+    "page_preload_range": 10,
+    "auto_cleanup_threshold": 0.8,
+    "max_collection_size_fast_search": 1000
+  },
+  "docker_services": {
+    "auto_start_services": true,
+    "elasticsearch_port": 9200,
+    "health_check_timeout": 30,
+    "required_services": [
+      "elasticsearch"
+    ],
+    "service_startup_verification": true
+  }
 }
-

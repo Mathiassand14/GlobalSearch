@@ -3,8 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
+import os
 from cross_ide_path_utils import PathResolver
 from src.core.documents.models import DocumentContent
+from src.core.models.configuration import ApplicationConfig
 
 
 @dataclass(slots=True)
@@ -25,11 +27,13 @@ class IndexManager:
         resolver: Optional[PathResolver] = None,
         es_client: Optional[Any] = None,
         settings: Optional[IndexSettings] = None,
+        config: Optional[ApplicationConfig] = None,
     ) -> None:
         self._resolver = resolver or PathResolver()
         self._es = es_client  # Can be provided/mocked for tests
         self._settings = settings or IndexSettings()
         self._model: Optional[Any] = None
+        self._config = config
 
     # ---- Public API ----
     def ensure_index(self) -> None:
@@ -99,8 +103,13 @@ class IndexManager:
             return self._es
         from elasticsearch import Elasticsearch  # type: ignore
 
-        # Default to localhost; callers can configure via env or pass client
-        self._es = Elasticsearch("http://localhost:9200")  # type: ignore[call-arg]
+        # Prefer ApplicationConfig URL if provided, then environment, then localhost (req 6.2)
+        url: str
+        if self._config is not None and getattr(self._config, "elasticsearch_url", None):
+            url = str(self._config.elasticsearch_url)
+        else:
+            url = os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
+        self._es = Elasticsearch(url)  # type: ignore[call-arg]
         return self._es
 
     def _get_model(self) -> Any:
@@ -117,4 +126,3 @@ class IndexManager:
         from joblib import Parallel, delayed  # type: ignore
 
         return {"Parallel": Parallel, "delayed": delayed}
-

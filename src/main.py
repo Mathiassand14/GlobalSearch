@@ -2,14 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from PyQt6.QtWidgets import QApplication
-
 from cross_ide_path_utils import PathResolver
 from src.core.config import ConfigurationManager
 from src.core.services import DockerServiceManager
-from src.gui.search_window import SearchWindow
-from src.gui.settings_window import SettingsWindow
-from src.gui.file_manager_window import FileManagerWindow
 
 
 def bootstrap() -> dict[str, Any]:
@@ -26,21 +21,19 @@ def bootstrap() -> dict[str, Any]:
 
 
 def main() -> None:
-    app = QApplication([])
+    """Backend/bootstrap entrypoint (GUI removed)."""
+    import time
+
     deps = bootstrap()
-
-    # Wiring a simple search window using a no-op search function placeholder
-    from src.core.search import SearchManager
-
-    sm = SearchManager()
-    win = SearchWindow(search_fn=lambda q, n, *_: sm.search(q, limit=n))
-    win.show()
-
-    # Expose settings and file manager windows for manual testing
-    settings = SettingsWindow(deps["config_manager"])  # noqa: F841
-    filemgr = FileManagerWindow(deps["config_manager"])  # noqa: F841
-
-    app.exec()
+    print("GlobalSearch backend initialized.")
+    print("Elasticsearch:", deps["config_manager"].load().elasticsearch_url)
+    print("Run API with: docker compose up -d api (port 8000)")
+    print("This process idles for container dev; press Ctrl+C to exit.")
+    try:
+        while True:
+            time.sleep(60)
+    except KeyboardInterrupt:
+        print("Shutting down...")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,76 @@
+#!/bin/bash
+# Simple launcher for PDF Search GUI application with X11 forwarding
+# Usage: ./run-gui
+
+set -e
+
+echo "🚀 Starting PDF Search GUI Application..."
+
+# Check if Docker is running
+if ! docker info >/dev/null 2>&1; then
+    echo "❌ Docker is not running. Please start Docker first."
+    exit 1
+fi
+
+# Check if DISPLAY is set
+if [ -z "$DISPLAY" ]; then
+    echo "❌ DISPLAY environment variable is not set."
+    echo "   Make sure you're running this from a graphical session."
+    exit 1
+fi
+
+# Setup X11 forwarding
+echo "🔧 Setting up X11 forwarding..."
+xhost +local:docker >/dev/null 2>&1 || {
+    echo "⚠️  Warning: Could not run 'xhost +local:docker'"
+    echo "   GUI may not work properly"
+}
+
+# Ensure .Xauthority exists
+if [ ! -f "$HOME/.Xauthority" ]; then
+    echo "📝 Creating .Xauthority file..."
+    touch "$HOME/.Xauthority" 2>/dev/null || {
+        echo "⚠️  Warning: Could not create .Xauthority file"
+    }
+fi
+
+echo "🐳 Starting Docker containers..."
+
+# Build and run the application
+docker compose build app >/dev/null 2>&1 || {
+    echo "❌ Failed to build Docker image"
+    exit 1
+}
+
+echo "✨ Launching GUI application..."
+echo "   You should see the PDF Search windows appear shortly..."
+
+# Run the GUI application
+docker run --rm -it \
+    --name pdf-search-gui \
+    -e DISPLAY="$DISPLAY" \
+    -e QT_QPA_PLATFORM= \
+    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    -v "$HOME/.Xauthority:/root/.Xauthority:ro" \
+    -v "$(pwd)/cross_ide_path_utils.py:/opt/project/cross_ide_path_utils.py:ro" \
+    -v "$(pwd)/documents:/opt/project/documents:rw" \
+    -v "$(pwd)/config:/opt/project/config:rw" \
+    -v "$(pwd)/logs:/opt/project/logs:rw" \
+    -v "$(pwd)/src:/opt/project/src:ro" \
+    -v "$(pwd)/pyproject.toml:/opt/project/pyproject.toml:ro" \
+    -v "$(pwd)/uv.lock:/opt/project/uv.lock:ro" \
+    --network host \
+    --workdir /opt/project \
+    globalsearch-app \
+    bash -c "
+        echo '🔄 Installing dependencies...'
+        uv sync --frozen --no-dev >/dev/null 2>&1 || uv sync --no-dev >/dev/null 2>&1
+        echo '🎯 Starting PDF Search Application...'
+        PYTHONPATH=/opt/project uv run python src/main.py
+    "
+
+# Cleanup
+echo "🧹 Cleaning up X11 permissions..."
+xhost -local:docker >/dev/null 2>&1 || true
+
+echo "👋 PDF Search GUI application closed."

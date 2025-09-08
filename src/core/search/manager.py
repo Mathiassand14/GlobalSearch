@@ -202,7 +202,9 @@ class SearchManager:
         try:
             from elasticsearch import Elasticsearch  # type: ignore
 
-            self._es = Elasticsearch("http://localhost:9200")  # type: ignore[call-arg]
+            # Use configured URL from ApplicationConfig (req 6.2: configuration management)
+            url = getattr(self._cfg, "elasticsearch_url", "http://localhost:9200")
+            self._es = Elasticsearch(str(url))  # type: ignore[call-arg]
             return self._es
         except Exception:
             return None
