@@ -20,7 +20,8 @@ RUN apt-get update \
         libxcb-render-util0 libxcb-shape0 libxcb-xfixes0 libxcb-xinerama0 \
         libfontconfig1 libfreetype6 libxrender1 libxext6 libx11-6 \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -LsSf https://astral.sh/uv/install.sh | sh
+    && curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && if [ -f /root/.local/bin/uv ]; then cp /root/.local/bin/uv /usr/local/bin/uv; fi
 
 # ---------- Dev/Test stage ----------
 FROM base AS dev
@@ -45,4 +46,4 @@ RUN uv sync --frozen --no-dev || uv sync --no-dev
 # Run the application via module entrypoint
 ENV QT_QPA_PLATFORM=offscreen
 ENTRYPOINT ["/bin/sh", "-lc"]
-CMD ["python -m pip install --no-cache-dir -r requirements.txt && python -m src.main"]
+CMD ["uv sync --no-dev || true; uv run python -m src.main"]
