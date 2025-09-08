@@ -51,13 +51,17 @@ class ConfigurationManager:
         """Persist config to disk as pretty-printed JSON."""
         self._ensure_parent_dir()
         data = self._to_dict(config)
-        with self._config_path.open("w", encoding="utf-8") as f:
+        tmp_path = self._config_path.with_suffix(self._config_path.suffix + ".tmp")
+        with tmp_path.open("w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
             f.flush()
             os.fsync(f.fileno())
+        os.replace(tmp_path, self._config_path)
         # Force mtime update to ensure watcher detects rapid changes
         now = time.time()
         os.utime(self._config_path, (now, now))
+        # Hint watcher to consider next mtime as a change
+        self._last_mtime = 0.0
 
     # -------- Validation / Conversion --------
     def _validate_and_build(self, data: Dict[str, Any]) -> ApplicationConfig:
@@ -120,6 +124,7 @@ class ConfigurationManager:
         self._hot_reload_stop.clear()
 
         def _watch() -> None:
+            started_at = time.time()
             while not self._hot_reload_stop.is_set():
                 try:
                     if self._config_path.exists():
@@ -127,9 +132,21 @@ class ConfigurationManager:
                         if self._last_mtime is None:
                             self._last_mtime = mtime
                         elif mtime > self._last_mtime:
+                            # Avoid triggering immediately on startup; wait at least half interval
+                            if time.time() - started_at < max(0.05, float(interval_sec) / 2.0):
+                                time.sleep(0.02)
+                                continue
                             self._last_mtime = mtime
-                            cfg = self.load()
-                            callback(cfg)
+                            # Retry a few times to avoid transient read issues
+                            cfg = None
+                            for _ in range(5):
+                                try:
+                                    cfg = self.load()
+                                    break
+                                except Exception:
+                                    time.sleep(0.02)
+                            if cfg is not None:
+                                callback(cfg)
                 except Exception:
                     # Fail-safe: never raise from watcher
                     pass

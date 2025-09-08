@@ -27,7 +27,7 @@
   - Write unit tests for configuration validation and persistence
   - _Requirements: 6.2, 6.5_
 
-- [ ] 4. Implement extensible document processing architecture
+- [x] 4. Implement extensible document processing architecture
 - [x] 4.1 Create document processor interface and base classes
   - Define DocumentProcessor abstract base class with standard methods using pathlib.Path parameters
   - Create DocumentContent and PageContent dataclasses for unified document representation with pathlib paths
@@ -216,7 +216,7 @@
   - Write performance tests for large document handling
   - _Requirements: 5.2, 5.3, 5.5_
 
-- [ ] 13. Implement background processing and threading with GPU acceleration
+- [x] 13. Implement background processing and threading with GPU acceleration
   - Create QThread workers for multi-format document indexing operations (mandatory for UI responsiveness)
   - Implement background directory watching with file system events for all supported file types
   - Add GPU-accelerated progress reporting for long-running indexing and re-encoding operations
