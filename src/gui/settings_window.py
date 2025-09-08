@@ -41,7 +41,7 @@ class SettingsWindow(QWidget):
 
         # AI Models tab
         self.tab_models = QWidget(self)
-        fm = QFormLayout(self.tab_models)
+        fm = QFormLayout()
         self.model_combo = QComboBox(self.tab_models)
         self.model_combo.addItems([
             "all-MiniLM-L6-v2",
@@ -49,13 +49,12 @@ class SettingsWindow(QWidget):
             "paraphrase-MiniLM-L6-v2",
         ])
         fm.addRow("Embedding model:", self.model_combo)
-        layout_models = QVBoxLayout(self.tab_models)
-        layout_models.addLayout(fm)
+        self.tab_models.setLayout(fm)
         self.tabs.addTab(self.tab_models, "AI Models")
 
         # Search tab
         self.tab_search = QWidget(self)
-        fs = QFormLayout(self.tab_search)
+        fs = QFormLayout()
         self.chk_semantic = QCheckBox("Enable AI semantic search")
         self.chk_fallback = QCheckBox("Fallback to pre-encoded only")
         self.chk_autocomplete = QCheckBox("Enable auto-complete suggestions")
@@ -80,30 +79,27 @@ class SettingsWindow(QWidget):
         fs.addRow("Fuzzy edit distance:", self.spin_fuzzy_edit)
         fs.addRow("Fuzzy accuracy target:", self.spin_fuzzy_acc)
         fs.addRow("Topic hierarchy depth:", self.spin_topic_depth)
-        layout_search = QVBoxLayout(self.tab_search)
-        layout_search.addLayout(fs)
+        self.tab_search.setLayout(fs)
         self.tabs.addTab(self.tab_search, "Search")
 
         # Performance tab (basic)
         self.tab_perf = QWidget(self)
-        fp = QFormLayout(self.tab_perf)
+        fp = QFormLayout()
         self.spin_cache_docs = QSpinBox(self.tab_perf)
         self.spin_cache_docs.setRange(10, 10000)
         self.spin_debounce = QSpinBox(self.tab_perf)
         self.spin_debounce.setRange(50, 2000)
         fp.addRow("Max cached documents:", self.spin_cache_docs)
         fp.addRow("Search debounce (ms):", self.spin_debounce)
-        layout_perf = QVBoxLayout(self.tab_perf)
-        layout_perf.addLayout(fp)
+        self.tab_perf.setLayout(fp)
         self.tabs.addTab(self.tab_perf, "Performance")
 
         # Services tab (basic toggle)
         self.tab_services = QWidget(self)
-        fsrv = QFormLayout(self.tab_services)
+        fsrv = QFormLayout()
         self.chk_auto_start = QCheckBox("Auto-start services")
         fsrv.addRow(self.chk_auto_start)
-        layout_srv = QVBoxLayout(self.tab_services)
-        layout_srv.addLayout(fsrv)
+        self.tab_services.setLayout(fsrv)
         self.tabs.addTab(self.tab_services, "Services")
 
         # Buttons
