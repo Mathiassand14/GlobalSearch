@@ -60,7 +60,7 @@
   - Write integration tests for service management
   - _Requirements: 6.1, 6.3, 6.4_
 
-- [x] 5.1 Optimize docker-compose.yml for PDF search application requirements
+- [ ] 5.1 Optimize docker-compose.yml for PDF search application requirements
   - Remove unnecessary services (PostgreSQL, Redis) that are not required for PDF search functionality
   - Keep only Elasticsearch service (required for search indexing and semantic search)
   - Add application service configuration with proper build context and multi-stage target specification
@@ -72,6 +72,39 @@
   - Create .dockerignore file to optimize build context and reduce image size
   - Write docker-compose validation tests to ensure services start correctly and communicate properly
   - _Requirements: 6.1, 6.3, 6.4_
+
+- [x] 5.2 Fix Docker Compose configuration issues and warnings
+  - Remove obsolete `version` attribute from docker-compose.yml (Docker Compose v2+ no longer requires it)
+  - Clean up orphaned containers using `docker-compose down --remove-orphans` command
+  - Add UV_LINK_MODE=copy environment variable to suppress hardlink warnings in containerized environments
+  - Configure proper volume mounting to avoid filesystem hardlink issues between host and container
+  - Add container cleanup and restart policies to prevent orphaned container accumulation
+  - Update Dockerfile to set UV_LINK_MODE=copy for consistent behavior across different filesystems
+  - Add docker-compose.override.yml to .gitignore to prevent IDE-generated override files from being committed
+  - Write validation script to check for common Docker Compose configuration issues
+  - _Requirements: 6.1, 6.4_
+
+- [x] 5.3 Optimize UV package management in Docker containers
+  - Set UV_LINK_MODE=copy environment variable in Dockerfile to prevent hardlink warnings
+  - Configure UV cache directory to use container-local storage for better performance
+  - Add UV optimization flags for containerized environments (--no-cache, --frozen)
+  - Implement multi-stage build optimization to reduce final image size and dependency download time
+  - Add UV environment variables for consistent behavior across development and production containers
+  - Configure proper UV workspace detection for containerized Python applications
+  - Write Docker build optimization tests to verify UV performance improvements
+  - _Requirements: 6.8_
+
+- [x] 5.4 Fix PyQt6 dependency and GUI container support
+  - Add system dependencies for PyQt6 in Dockerfile (libgl1-mesa-glx, libxkbcommon-x11-0, libxcb-xinerama0, python3-pyqt6)
+  - Verify PyQt6 is properly included in pyproject.toml dependencies and UV sync operations
+  - Configure X11 forwarding for GUI applications in Docker containers with DISPLAY environment variable
+  - Add X11 socket volume mounts (/tmp/.X11-unix:/tmp/.X11-unix:rw) for GUI support in Linux environments
+  - Create headless mode fallback when GUI is not available in container environment using QT_QPA_PLATFORM=offscreen
+  - Add separate docker-compose profiles for GUI vs headless operation modes
+  - Configure xvfb-run wrapper for headless GUI testing in containerized CI/CD environments
+  - Add proper Qt platform plugin configuration for container environments
+  - Write tests to verify PyQt6 imports and GUI initialization work correctly in both GUI and headless modes
+  - _Requirements: 6.1, 6.8_
 
 - [x] 6. Implement Elasticsearch integration and indexing
   - Create IndexManager class with Elasticsearch client configuration
@@ -119,7 +152,7 @@
   - Write integration tests for multi-strategy search coordination and topic hierarchy
   - _Requirements: 1.3, 4.5, 5.1_
 
-- [ ] 8. Implement performance optimization modules
+- [x] 8. Implement performance optimization modules
 - [x] 8.1 Create GPU and Numba-accelerated operations
   - Implement numba_ops.py with @jit decorated cosine similarity functions with GPU support
   - Add GPU-accelerated batch embedding processing functions for re-encoding operations
@@ -146,7 +179,7 @@
   - Write unit tests for event bus functionality
   - _Requirements: 3.2, 3.3, 3.5_
 
-- [ ] 10. Create search window GUI components
+- [x] 10. Create search window GUI components
 - [x] 10.1 Implement main search window layout and controls
   - Create SearchWindow class with PyQt6 widgets (search bar, filters, results list, topic tree)
   - Implement debounced search input with 300ms delay using QTimer (exact requirement)
@@ -168,7 +201,7 @@
   - Write GUI unit tests using pytest-qt
   - _Requirements: 2.5, 4.5, 3.2, 5.1_
 
-- [ ] 11. Create settings window GUI components
+- [x] 11. Create settings window GUI components
 - [x] 11.1 Implement settings window layout and AI model configuration
   - Create SettingsWindow class with tabbed interface (AI Models, Search, Performance, Services, GPU Settings)
   - Add model selection dropdown with sentence-transformers model options
@@ -198,7 +231,7 @@
   - Write unit tests for file browser integration, drag-and-drop, and file copying functionality
   - _Requirements: 6.2_
 
-- [ ] 12. Create document viewer window GUI components
+- [x] 12. Create document viewer window GUI components
 - [x] 12.1 Implement extensible document viewer architecture
   - Create DocumentViewerWindow base class with common viewer functionality
   - Define DocumentViewer interface for file-type-specific rendering
