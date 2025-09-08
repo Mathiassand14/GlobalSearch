@@ -39,7 +39,7 @@ services:
     working_dir: /opt/project
     stdin_open: true
     tty: true
-    command: ["/bin/sh", "-lc", "uv venv || true; uv pip install -r requirements.txt || true; tail -f /dev/null"]
+    command: ["/bin/sh", "-lc", "uv pip install -p /usr/local/bin/python3 -r requirements.txt || true; tail -f /dev/null"]
 
 volumes:
   esdata:
