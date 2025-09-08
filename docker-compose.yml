@@ -1,4 +1,4 @@
-joversion: "3.8"
+version: "3.8"
 
 services:
   elasticsearch:
@@ -9,30 +9,33 @@ services:
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - esdata:/usr/share/elasticsearch/data
 
-  postgresql:
-    image: postgres:16
+  app:
+    build:
+      context: .
+      target: runtime
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     environment:
-      POSTGRES_DB: pdf_search
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: dev_password
-    ports:
-      - "5432:5432"
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
     volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redisdata:/data
+      - ./documents:/app/documents
+      - ./config:/app/config
+      - ./logs:/app/logs
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2g
 
 volumes:
   esdata:
-  pgdata:
-  redisdata:
-

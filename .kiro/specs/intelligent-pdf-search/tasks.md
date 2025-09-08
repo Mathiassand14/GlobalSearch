@@ -60,7 +60,7 @@
   - Write integration tests for service management
   - _Requirements: 6.1, 6.3, 6.4_
 
-- [ ] 5.1 Optimize docker-compose.yml for PDF search application requirements
+- [x] 5.1 Optimize docker-compose.yml for PDF search application requirements
   - Remove unnecessary services (PostgreSQL, Redis) that are not required for PDF search functionality
   - Keep only Elasticsearch service (required for search indexing and semantic search)
   - Add application service configuration with proper build context and multi-stage target specification
